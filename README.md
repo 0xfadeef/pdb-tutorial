@@ -60,16 +60,6 @@ cd /path/to/pdb-tutorial
 
 `file: instructions.txt`
 ```
-Your boss has given you the following project to fix for a client. It's supposed to be a simple dice
-game where the object of the game is to correctly add up the values of the dice for 6 consecutive turns.
-
-The issue is that a former programmer worked on it and didn't know how to debug effectively.
-It's now up to you to fix the errors and finally make the game playable.
-
-To play the game you must run the main.py file.
-```
-
-```
 Ваш босс поручил вам исправить ошибку в проекте. Проект представляет собой простую игру, в которой компьютер
 моделирует бросание игральной кости. Цель игры – правильно сложить числа, выпавшие на костях в серии из 6-и
 последовательных выбрасываний.
