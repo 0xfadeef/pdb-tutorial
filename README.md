@@ -150,7 +150,13 @@ dicegame.utils.UnnecessaryError: You actually called this function...
 import pdb; pdb.set_trace()
 ```
 
-Метод [`set_trace()`](https://docs.python.org/3/library/pdb.html#pdb.set_trace) устанавливает точку останова в той строке, где вызывается метод. Откроем файл `main.py` и добавим точку останова на строку 8:
+Начиная с версии Python 3.7, доступна встроенная функция `breakpoint()`, которая является более удобной заменой для `import pdb; pdb.set_trace()`
+
+```python
+breakpoint()
+```
+
+Оба метода, [`set_trace()`](https://docs.python.org/3/library/pdb.html#pdb.set_trace) и [`breakpoint()`](https://docs.python.org/3/library/functions.html#breakpoint), устанавливают точку останова в той строке, где вызывается метод. Далее в примерах мы будем использовать метод `set_trace()`, так как он более универсален и поддерживается во всех версиях языка. Откроем файл `main.py` и добавим точку останова на строку 8:
 
 `file: main.py`
 ```python
@@ -549,6 +555,70 @@ r(eturn)
 ```
 
 Так как на строке 25 происходит присваивание `c = 0`, мы получили ожидаемый результат.
+
+### Команда `commands`
+
+```
+commands [bpnumber]
+        (com) ...
+        (com) end
+        (Pdb)
+
+        Specify a list of commands for breakpoint number bpnumber.
+```
+
+Команда `commands` позволяет выполнять другие команды `pdb` или код на Python автоматически, каждый раз при достижении указанной точки останова. Команды (или код) выполняются в заданном порядке, так, как если бы вы вводили их вручную в командной строке отладчика. При наборе команд в блоке `commands` приглашение командной строки меняется на `(com)`. Для завершения блока нужно ввести слово `end`, при этом приглашение командной строки изменится обратно с `(com)` на `(Pdb)`.
+
+Эта команда оказывается очень полезной, например, в тех случаях, когда нужно проверять значения переменных внутри цикла, поскольку она избавляет от необходимости выводить эти значения напрямую на каждой итерации. Давайте рассмотрим пример. Убедитесь, что вы находитесь в корневом директории проекта, и введите в терминале
+
+```
+python -m pdb main.py
+```
+
+Перейдите на строку 8 и выполните `s(tep)`, чтобы попасть в метод `run()` класса `GameRunner`. Затем добавьте точку останова на строку 17.
+
+```
+> /Users/Development/pdb-tutorial/main.py(8)main()
+-> GameRunner.run()  #This is line 8 in main.py
+(Pdb) s
+--Call--
+> /Users/Development/pdb-tutorial/dicegame/runner.py(21)run()
+-> @classmethod
+(Pdb) b 17
+Breakpoint 4 at /Users/Development/pdb-tutorial/dicegame/runner.py:17
+```
+
+Точка останова, которой был присвоен номер `4`, была установлена в начало цикла в методе `answer()`, который, как мы помним, вычисляет суммарное число очков, выпавших на костях. Используем команду `commands`, чтобы выводить значение переменной `total` всякий раз при срабатывании этой точки останова.
+
+```
+(Pdb) commands 4
+(com) print(f"The total value as of now is {total}")
+(com) end
+```
+
+С помощью `commands` мы задали команду (в данном случае – это вызов функции `print`), которая будет выполняться при достижении точки останова `4`. Чтобы попасть на эту точку останова, используем команду `c(ontinue)`
+
+```
+(Pdb) c
+[...] # You will have to guess a number
+The total value as of now is 0
+> /Users/Development/pdb-tutorial/dicegame/runner.py(17)answer()
+-> for die in self.dice:
+(Pdb)
+```
+
+Мы видим, что при срабатывании точки останова происходит вывод на экран текущего значения переменной `total`. Выполним `c(ontinue)` ещё раз и посмотрим, что произойдёт
+
+```
+(Pdb) c
+[...]
+The total value as of now is 1
+> /Users/Development/pdb-tutorial/dicegame/runner.py(17)answer()
+-> for die in self.dice:
+(Pdb)
+```
+
+И вновь срабатывание точки останова повлекло выполнение команды в блоке `commands` (а именно функции `print`). Думаю, вы уже поняли, насколько это может быть полезно, особенно при работе с циклами.
 
 
 ### Пост Мортем
